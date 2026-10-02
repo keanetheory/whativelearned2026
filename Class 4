@@ -1,0 +1,1066 @@
+Class Notes — RAG, Dynamic Content Pipelines & AI-Assisted Game Development
+
+Source: New Recording 100
+Recording length: ~28 minutes 49 seconds
+Focus: Using Retrieval-Augmented Generation (RAG) and agent pipelines to generate game content that stays consistent with a Game Design Document (GDD)
+
+────────
+
+1. Core Idea
+
+The central problem addressed in this lesson is consistency when using AI to help build a game.
+
+A large GDD may contain far more information than an AI agent can reliably keep active in its working context at once. If the agent generates content without consulting the game documentation, it tends to fall back on patterns from its general training data.
+
+The result is often:
+
+• generic game ideas;
+• inconsistent lore;
+• mechanics that were never part of the design;
+• visual or narrative drift;
+• hallucinated features;
+• content that does not sound or feel like the intended game.
+
+The proposed solution is to make the game’s documentation the source of truth and require agents to retrieve relevant information from it before generating content.
+
+> **Key principle:** The agent should write from your material, not from scratch.
+
+────────
+
+2. Retrieval-Augmented Generation (RAG)
+
+What is RAG?
+
+RAG = Retrieval-Augmented Generation.
+
+Instead of asking an LLM to answer purely from its training data, the system first retrieves relevant information from your own documents and provides that information to the model as context.
+
+For game development, this may include:
+
+• the GDD;
+• lore documents;
+• world rules;
+• character descriptions;
+• tone guides;
+• art/style guides;
+• dialogue conventions;
+• game-system documentation;
+• technical specifications.
+
+The AI then generates its answer using those materials.
+
+────────
+
+Why RAG matters for a game project
+
+Without RAG:
+
+Prompt
+  ↓
+General LLM knowledge
+  ↓
+Generic output
+
+With RAG:
+
+Prompt
+  ↓
+Retrieve relevant game documents
+  ↓
+GDD / lore / style / system rules
+  ↓
+LLM generation
+  ↓
+Game-specific output
+
+This changes the output from:
+
+> “Here is a typical RPG quest.”
+
+to something closer to:
+
+> “Here is a quest that fits this game’s established world, mechanics, characters, tone and design rules.”
+
+────────
+
+Modern RAG can be simple
+
+A full production RAG architecture may use:
+
+• embeddings;
+• vector databases;
+• searchable semantic indexes;
+• shared memory layers;
+• specialised retrieval systems.
+
+However, for the class project, RAG does not need to begin with a complex vector database.
+
+A simple version can be:
+
+/docs
+    GDD.md
+    lore.md
+    characters.md
+    style-guide.md
+    mechanics.md
+
+An agent can be instructed to read the relevant files before performing a task.
+
+For example:
+
+Read GDD.md and style-guide.md.
+
+Using those documents as the source of truth,
+generate three NPC concepts for the harbour district.
+
+The important thing is not the complexity of the technology.
+
+The important thing is that the AI retrieves project-specific context before generating.
+
+────────
+
+3. Documentation as Shared Agent Memory
+
+A useful way to think about the documentation layer is as a shared memory pool for the entire agent team.
+
+Multiple agents can consult the same documentation:
+
+                  ┌───────────────┐
+                  │      GDD      │
+                  │ Lore / Style  │
+                  │ World Rules   │
+                  └───────┬───────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        ↓                 ↓                 ↓
+ Narrative Agent     UI Agent        Gameplay Agent
+        ↓                 ↓                 ↓
+     Content           UI work           Systems
+
+Because they reference the same source material, their outputs are more likely to remain consistent.
+
+This creates a single source of truth.
+
+────────
+
+4. RAG Reduces Hallucination and Design Drift
+
+One of the biggest advantages of grounding agents in documentation is reduced hallucination.
+
+Example:
+
+If the GDD contains no turret mechanic, an agent should not suddenly decide the game needs automated turrets.
+
+This means documentation should define:
+
+• what exists;
+• what does not exist;
+• what the agent is allowed to create;
+• what requires approval;
+• what rules cannot be broken.
+
+This introduces the idea of generation boundaries.
+
+Example:
+
+Agent MAY:
+- propose new NPC dialogue;
+- generate item descriptions;
+- suggest variations of approved enemy types.
+
+Agent MUST REQUEST APPROVAL before:
+- inventing a new faction;
+- adding a new core mechanic;
+- changing established lore;
+- altering the game's visual identity.
+
+The stronger these boundaries are, the easier it becomes to scale the project without losing coherence.
+
+────────
+
+5. Break the Game into Content Types
+
+Once the GDD exists, the next problem is converting the design into actual production tasks.
+
+Ask:
+
+> What content does this game actually need?
+
+Examples include:
+
+• dialogue lines;
+• quests;
+• quest descriptions;
+• items;
+• item descriptions;
+• lore;
+• NPC biographies;
+• UI screens;
+• levels;
+• environment assets;
+• character assets;
+• mechanics;
+• audio;
+• music;
+• tutorials;
+• menus.
+
+Each content type may require its own workflow.
+
+────────
+
+6. Every Feature Creates Dependencies
+
+A major lesson from the lecture is that apparently small features often reveal additional requirements.
+
+Example:
+
+"We need NPC dialogue."
+
+This may expand into:
+
+NPC dialogue
+   ↓
+Dialogue data
+   ↓
+Dialogue UI
+   ↓
+Player controls
+   ↓
+Skip / continue behaviour
+   ↓
+Dialogue system
+   ↓
+NPC triggers
+   ↓
+Animations / audio
+
+Therefore, when considering a feature, ask:
+
+1. What content does this require?
+2. What systems does it depend on?
+3. Does an existing asset solve part of the problem?
+4. Does this require a specialised agent?
+5. What needs to be done manually?
+6. Is this feature important enough to justify the added scope?
+
+────────
+
+7. Scope Control and Player Experience
+
+Every new system expands scope.
+
+The lecture stresses that game-development decisions should ultimately return to:
+
+> **Does this improve the player’s experience?**
+
+For example, a developer may originally plan elaborate NPC quest chains.
+
+But if the game is primarily an action experience, ask whether complex branching quest dialogue is actually central to what makes the game fun.
+
+If the answer is no, the feature may need to be:
+
+• simplified;
+• postponed;
+• reduced;
+• removed from the GDD.
+
+This is especially important during prototype development.
+
+────────
+
+8. Prototype First: Solve the Important Unknowns
+
+For an early grey-box prototype, not every piece of content needs to exist.
+
+You may not yet need:
+
+• polished quest descriptions;
+• final artwork;
+• complete lore;
+• finished UI;
+• production-quality audio.
+
+The prototype should primarily prove:
+
+• the game works;
+• the core mechanic is playable;
+• the core experience is understandable;
+• the biggest technical uncertainties can be solved.
+
+A useful question is:
+
+> **What part of my game currently makes me say “I don’t know how to do this”?**
+
+That is often the best problem to investigate first.
+
+Ask the AI directly:
+
+How would we implement this mechanic?
+
+What systems would this require?
+
+What assets would we need?
+
+What should be prototyped first?
+
+What is the simplest testable version?
+
+────────
+
+9. Structured Output Is More Valuable Than Prose
+
+A powerful agent pipeline should ideally generate content in a form that the game engine can use.
+
+Weak output:
+
+The merchant is a friendly old sailor who sells several useful items...
+
+Better structured output:
+
+{
+  "npc_id": "merchant_001",
+  "name": "Harlan",
+  "trigger": "player_enters_shop",
+  "tone": "warm_but_guarded",
+  "dialogue": "Storm's coming. Buy what you need before the tide turns."
+}
+
+Structured output could be stored as:
+
+• JSON;
+• CSV;
+• YAML;
+• engine data assets;
+• tables;
+• structured Markdown;
+• database records.
+
+The goal is to move from:
+
+AI → description of game content
+
+toward:
+
+AI → usable game data → engine → playtest
+
+────────
+
+10. Build Reusable Content Agents
+
+A strong pipeline can eventually become a reusable production tool.
+
+Example:
+
+Item Generation Agent
+    ↓
+Reads GDD
+    ↓
+Reads item-system rules
+    ↓
+Generates 10 items
+    ↓
+Checks balance and lore
+    ↓
+Outputs structured JSON
+    ↓
+Developer imports items
+    ↓
+Playtest
+
+The long-term objective is not merely asking ChatGPT questions.
+
+It is creating repeatable production pipelines.
+
+────────
+
+11. Persona, Tone and Game Voice
+
+One of the biggest risks of AI-generated game content is that it feels generic.
+
+The lecture describes the difference between content that players dismiss as generic “AI slop” and content they simply experience as part of the game.
+
+That difference often comes from voice and creative direction.
+
+The project documentation should define:
+
+• game tone;
+• world atmosphere;
+• character voices;
+• visual language;
+• emotional intent;
+• area-specific mood;
+• narrative style;
+• humour level;
+• vocabulary;
+• cultural influences;
+• music direction.
+
+The AI cannot reliably preserve a creative identity that has never been defined.
+
+────────
+
+12. Human Creative Direction Remains Essential
+
+The class repeatedly emphasises that AI is not supposed to replace the designer’s vision.
+
+The developer should already have an idea of:
+
+• what the game should feel like;
+• what makes the world unique;
+• how the mechanics support that experience;
+• how characters behave;
+• how environments look;
+• what the player should feel.
+
+Agents then help execute that vision.
+
+A useful mental model is:
+
+Human = Creative Director
+AI Agents = Production Team
+Documentation = Studio Bible
+
+If the creative director does not define the vision, the production team will fill in the blanks.
+
+With AI, those blanks are filled extremely quickly — which makes drift especially dangerous.
+
+────────
+
+13. Human Review Gates
+
+AI-generated material should not automatically become game canon.
+
+Use explicit review gates.
+
+Example:
+
+Generate
+   ↓
+Automated checks
+   ↓
+Critic agent
+   ↓
+Human review
+   ↓
+Approved?
+   ├── No → revise / regenerate
+   └── Yes → add to game
+
+The earlier bad output is caught, the less design drift propagates throughout the project.
+
+────────
+
+14. The “Generate 10, Keep 3” Workflow
+
+Instead of asking the AI for one answer, generate many candidates.
+
+Example:
+
+Generate 10 title-screen designs.
+
+Then select the strongest candidate.
+
+Next:
+
+Generate 10 variations based on design #9.
+
+This creates an iterative funnel:
+
+Generate many
+      ↓
+Evaluate
+      ↓
+Select strongest
+      ↓
+Generate variations
+      ↓
+Evaluate
+      ↓
+Refine
+
+In production, the number could be much larger than 10.
+
+The important concept is selection pressure.
+
+Do not treat the first generation as the final result.
+
+────────
+
+15. RAG + Iteration
+
+The “generate many” workflow becomes much stronger when combined with RAG.
+
+Instead of:
+
+Generate 10 enemy designs.
+
+use:
+
+Read:
+- GDD.md
+- lore.md
+- art-style.md
+- enemy-system.md
+
+Generate 10 enemy designs that:
+- respect the lore;
+- match the visual language;
+- use existing combat systems;
+- fit the documented difficulty range.
+
+Now diversity exists inside the game’s constraints.
+
+────────
+
+16. Approved Outputs Improve Future Generations
+
+Once strong examples have been selected, those examples can become new reference material.
+
+Example:
+
+Initial style guide
+      ↓
+Generate characters
+      ↓
+Choose 3 good characters
+      ↓
+Add approved examples to style guide
+      ↓
+Generate more characters
+
+The lecturer gave the example of the Garbler characters.
+
+The first few characters required significant iteration.
+
+Once several approved characters existed, the pipeline could generate many more characters that matched them successfully.
+
+This shows an important principle:
+
+> **Good approved examples become training context for later generation.**
+
+────────
+
+17. Critic Agents
+
+A production pipeline can include a second AI agent whose job is not to create content but to criticise it.
+
+Example:
+
+Generator Agent
+      ↓
+new NPC
+      ↓
+Critic Agent
+      ↓
+compare against:
+- GDD
+- lore
+- style guide
+- mechanic rules
+      ↓
+Pass / Fail
+
+Questions the critic can ask:
+
+• Does this contradict established lore?
+• Does this introduce an undocumented mechanic?
+• Is the character voice consistent?
+• Does this match the game’s tone?
+• Does this fit the system constraints?
+• Is the output structurally valid?
+• Is required information missing?
+
+────────
+
+18. Critic Agents Reduce Human Review Load
+
+Humans should remain the final decision-makers, but they do not necessarily need to inspect every raw generation.
+
+A scalable workflow is:
+
+100 generations
+      ↓
+Automated checks
+      ↓
+Critic agent
+      ↓
+15 acceptable candidates
+      ↓
+Human review
+      ↓
+3 approved
+
+This allows the AI system to handle volume while the human retains creative control.
+
+────────
+
+19. Self-Correcting Agent Loops
+
+Critic agents make longer-running autonomous workflows possible.
+
+For example:
+
+Generator
+   ↓
+Critic
+   ↓
+Fails?
+   ├── Yes → return feedback to generator
+   │           ↓
+   │         revise
+   │           ↓
+   └──────── critic
+   ↓
+Pass
+   ↓
+Human approval
+
+The agent can therefore detect and repair some problems before presenting work to the developer.
+
+────────
+
+20. AI Inside the Game: Epic Persona Device
+
+The lecture briefly shifts from AI building the game to AI running inside the game.
+
+Epic’s Persona Device was used as an example.
+
+A dynamic NPC can be configured with:
+
+• identity;
+• personality;
+• knowledge;
+• behavioural rules;
+• goals;
+• voice.
+
+The NPC can then:
+
+• speak with players dynamically;
+• remember interactions;
+• react to behaviour;
+• trigger gameplay events.
+
+A cited example was the conversational Darth Vader NPC in Fortnite.
+
+────────
+
+21. Generative NPCs vs Traditional NPCs
+
+Traditional NPC:
+
+Developer writes dialogue
+      ↓
+Voice actor records lines
+      ↓
+Player chooses / triggers predefined dialogue
+
+Generative NPC:
+
+Developer defines:
+- personality
+- knowledge
+- boundaries
+- goals
+
+      ↓
+
+LLM generates context-aware dialogue during play
+
+This potentially enables more emergent gameplay.
+
+────────
+
+22. Real-Time AI Has Different Constraints
+
+When using AI during development, latency may not matter much.
+
+A generation pipeline could run for minutes or even overnight.
+
+For an AI NPC inside a live game:
+
+> latency becomes critical.
+
+The response must feel natural within a human conversation.
+
+Other challenges include:
+
+• consistency;
+• memory;
+• character adherence;
+• safety;
+• jailbreak attempts;
+• player abuse;
+• unexpected inputs.
+
+────────
+
+23. Players Will Try to Break AI Systems
+
+An important production lesson:
+
+> Assume players will deliberately test the boundaries of an AI NPC.
+
+Players may try to:
+
+• jailbreak it;
+• force it out of character;
+• trigger inappropriate responses;
+• confuse its memory;
+• discover hidden prompts;
+• make it contradict game lore.
+
+Therefore dynamic AI systems need strong:
+
+• guardrails;
+• system prompts;
+• knowledge boundaries;
+• moderation;
+• testing;
+• fallback behaviour.
+
+────────
+
+24. Assignment 4 — Dynamic Content Pipeline
+
+Due: Before 12 October
+
+The assignment is to build a pipeline that generates content for the student’s capstone game using the GDD as source material.
+
+The pipeline must read the game documentation before generating.
+
+The objective is:
+
+> The output should sound like **your game**, not generic game content.
+
+────────
+
+What can the pipeline generate?
+
+Almost any useful content type is acceptable.
+
+Examples:
+
+• shop UI;
+• dialogue;
+• NPCs;
+• quests;
+• items;
+• environmental descriptions;
+• level concepts;
+• encounter designs;
+• game data;
+• art concepts;
+• technical assets;
+• prototype systems.
+
+The important requirement is that the content is genuinely useful for the student’s capstone game.
+
+────────
+
+25. Assignment Deliverables
+
+The lecturer expects approximately:
+
+GitHub repository / project
+│
+├── pipeline
+│
+├── game documentation / GDD
+│
+├── generated output #1
+├── generated output #2
+├── generated output #3
+└── README.md
+
+Required components:
+
+1. A working content-generation pipeline
+2. The GDD/game documentation used as source material
+3. Three generated outputs
+4. A short README explaining the project
+
+The submission should ideally be a GitHub link.
+
+────────
+
+26. Assignment Constraints
+
+The pipeline should:
+
+• target the student’s actual capstone game;
+• use the GDD/documentation;
+• generate something the game needs;
+• use RAG or equivalent document grounding;
+• check consistency;
+• avoid generic output.
+
+Generic content that could belong to any game does not satisfy the objective.
+
+────────
+
+27. Assignment Rubric — Key Areas
+
+The lecture identifies several assessment areas.
+
+Game-Anchored Source
+
+The pipeline uses the student’s real game documentation as its source.
+
+Content Fit
+
+The generated material is useful for the actual game.
+
+RAG
+
+The pipeline retrieves and uses game documentation before generation.
+
+Consistency Checking
+
+The pipeline checks generated material against the game’s existing rules or documentation.
+
+Voice Judgement / Self-Assessment
+
+The submission should include an assessment of whether the generated outputs actually sound like the game.
+
+Useful questions:
+
+• Does this feel consistent with my game’s tone?
+• Does it fit the world?
+• Does it introduce contradictions?
+• Would I actually use this output?
+• What still feels generic?
+• What would I change next?
+
+────────
+
+28. Students Already Ahead
+
+If the agent team and documentation system are already working:
+
+> Start building the prototype.
+
+There is no need to artificially delay development just to remain aligned with the class pace.
+
+However, students who are still new to agent workflows should prioritise:
+
+1. getting agents working;
+2. grounding them in the GDD;
+3. generating game-specific content;
+
+before worrying about a sophisticated prototype.
+
+────────
+
+29. Q&A Note
+
+The recording ends shortly after a student begins asking about token usage while iteratively debugging an Unreal prototype with Claude.
+
+The example concerned a sentinel character not turning correctly and repeatedly returning to Claude to refine the implementation.
+
+The question is cut off before the instructor’s answer, so no conclusion from that discussion should be inferred from this recording.
+
+────────
+
+Key Concepts to Memorise
+
+|Concept                   |Meaning                                                                    |
+|--------------------------|---------------------------------------------------------------------------|
+|**RAG**                   |Retrieve relevant project information before asking an LLM to generate     |
+|**Single source of truth**|Shared documentation all agents reference                                  |
+|**Design drift**          |Gradual movement away from the original game vision                        |
+|**Structured output**     |AI output formatted so software/game engines can directly consume it       |
+|**Human review gate**     |A point where a person approves AI-generated changes                       |
+|**Critic agent**          |An AI agent responsible for evaluating another agent’s output              |
+|**Generate 10, keep 3**   |Produce many candidates, select the strongest and iterate                  |
+|**Persona control**       |Defining voice, personality, knowledge and behaviour                       |
+|**Content pipeline**      |Repeatable process that turns game documentation into usable assets/content|
+|**Grey-box prototype**    |Simple playable prototype focused on mechanics rather than polish          |
+
+────────
+
+Study Model
+
+A useful way to remember the entire lecture is:
+
+DOCUMENT
+   ↓
+RETRIEVE
+   ↓
+GENERATE
+   ↓
+STRUCTURE
+   ↓
+CRITIQUE
+   ↓
+HUMAN REVIEW
+   ↓
+IMPLEMENT
+   ↓
+PLAYTEST
+   ↓
+UPDATE DOCUMENTATION
+   ↺
+
+This is the core AI-assisted game-development loop.
+
+────────
+
+Practical Example
+
+Suppose the game needs new shop items.
+
+Step 1 — Source Material
+
+GDD.md
+world-lore.md
+item-rules.md
+style-guide.md
+
+Step 2 — Generator Agent
+
+Prompt:
+
+Read the supplied game documentation.
+
+Generate 10 shop items appropriate to this game.
+
+Each item must include:
+- item_id
+- name
+- description
+- price
+- gameplay effect
+- rarity
+- lore justification
+
+Do not introduce mechanics not present in the GDD.
+
+Step 3 — Critic Agent
+
+Evaluate each item against:
+- game lore;
+- existing mechanics;
+- tone;
+- balance rules;
+- formatting requirements.
+
+Reject items that contradict the documentation.
+
+Step 4 — Human Review
+
+Choose the strongest three.
+
+Step 5 — Structured Export
+
+[
+  {
+    "item_id": "ITEM_014",
+    "name": "Storm Lantern",
+    "price": 45,
+    "rarity": "common"
+  }
+]
+
+Step 6 — Game Import
+
+Import the data into the engine and playtest.
+
+This is a simple example of the dynamic content pipeline described in the lesson.
+
+────────
+
+Revision Questions
+
+1. What problem does RAG solve when working with a large GDD?
+2. Why is a GDD useful as a single source of truth for multiple agents?
+3. What causes AI-generated game content to become generic?
+4. How does RAG reduce hallucination?
+5. Why should agent permissions and generation boundaries be documented?
+6. Why does adding a seemingly small feature often increase project scope?
+7. What question should determine whether a feature remains in the GDD?
+8. Why is structured JSON more useful than prose for some game-development pipelines?
+9. What is the “generate 10, keep 3” workflow?
+10. Why should approved examples be added back into project documentation?
+11. What role does a critic agent perform?
+12. Why should a human remain the final approval gate?
+13. What additional constraints appear when an LLM runs inside a live game?
+14. What does Assignment 4 require?
+15. Why would generic generated content fail the assignment objective?
+
+────────
+
+Flashcards
+
+Q: What does RAG stand for?
+
+A: Retrieval-Augmented Generation.
+
+Q: What is the purpose of RAG?
+
+A: To ground AI generation in relevant external/project-specific information rather than relying only on the model’s training data.
+
+Q: What should act as the source of truth for game agents?
+
+A: The GDD and associated project documentation.
+
+Q: What is design drift?
+
+A: When generated content gradually moves away from the intended game design, lore, tone or mechanics.
+
+Q: What is a critic agent?
+
+A: An agent that evaluates another agent’s output against requirements and documentation.
+
+Q: What is the purpose of human review gates?
+
+A: To ensure generated work is deliberately approved before becoming part of the game.
+
+Q: What does “generate 10, keep 3” encourage?
+
+A: Iteration, comparison and selective refinement rather than accepting the first AI result.
+
+Q: Why use structured output?
+
+A: It allows generated information to be consumed more easily by software or a game engine.
+
+Q: What is the primary objective of Assignment 4?
+
+A: Build a game-specific content-generation pipeline grounded in the student’s GDD.
+
+Q: How many generated outputs are required for Assignment 4?
+
+A: Three.
+
+────────
+
+Quick Revision Summary
+
+If only five ideas are remembered from this lecture, remember these:
+
+1. Your GDD should be the source of truth for your AI agents.
+2. RAG makes agents retrieve relevant game information before generating.
+3. Generate multiple options, evaluate them and refine the strongest ones.
+4. Use critic agents plus human approval gates to prevent drift.
+5. Build pipelines that create structured, usable game content—not just paragraphs of AI text.
+
+────────
+
+Suggested Next Step for the Capstone
+
+Create a small first version of the Assignment 4 pipeline:
+
+GDD
+ ↓
+Content Generator Agent
+ ↓
+Critic Agent
+ ↓
+3 Approved Outputs
+ ↓
+README
+ ↓
+GitHub
+
+Start with one content type that the game genuinely needs. A narrow pipeline that works reliably is more valuable than a broad pipeline that produces inconsistent results.
